@@ -1,0 +1,246 @@
+1. Linux Fundamentals & Installation
+
+Subtopics:
+
+Linux Overview
+Linux Architecture
+Linux Distributions
+BIOS vs UEFI
+Linux Boot Process
+Linux Installation Sources
+Installing Linux Server
+Installing Linux Desktop
+Deploying Linux on Cloud
+Linux Hardware Management
+2. Linux File System Navigation
+
+Subtopics:
+
+Linux File System Structure
+File System Navigation Commands
+Directory Management
+File Operations
+Searching Files and Directories
+File Filtering Commands
+Text Processing Commands
+Pipes and Redirection
+3. Linux Storage & File Systems
+
+Subtopics:
+
+Linux Storage Concepts
+File System Hierarchy Standard (FHS)
+Storage Management Commands
+Creating File Systems
+Mounting Local File Systems
+Mounting Remote File Systems
+Hard Links
+Soft Links
+Managing File Systems
+RAID Concepts
+Software RAID Configuration
+Logical Volume Management (LVM)
+Storage Area Network (SAN)
+Network Attached Storage (NAS)
+iSCSI Configuration
+4. Linux File Permissions & User Management
+
+Subtopics:
+
+Standard Linux File Permissions
+Permission Management
+Extended ACL Permissions
+Managing ACLs
+File Compression
+File Archiving
+User Account Management
+Group Management
+Password Policies
+sudo Configuration
+5. Linux Networking
+
+Subtopics:
+
+IP Addressing
+Network Configuration
+Network Interfaces
+Routing Concepts
+Static Routes
+Network Diagnostic Commands
+Packet Capture using tcpdump
+Packet Analysis using Wireshark
+File Synchronization using rsync
+6. Linux Processes & System Management
+
+Subtopics:
+
+Linux Processes
+Daemons
+System Startup
+System Shutdown
+Process Management
+Background Jobs
+Cron Scheduling
+Log Management
+Log Rotation
+rsyslog Configuration
+7. Linux Network Services
+
+Subtopics:
+
+DHCP Concepts
+Linux DHCP Server
+DHCP Client Configuration
+DNS Concepts
+Linux DNS Server
+DNS Configuration
+Network Time Protocol (NTP)
+Time Synchronization
+SSH Configuration
+SCP
+SFTP
+Apache Web Server Installation
+8. Linux Software Management
+
+Subtopics:
+
+Package Management
+Linux Kernel Configuration
+Repository Management
+Software Updates
+YUM Package Manager
+DNF Package Manager
+APT Package Manager
+Pacman Package Manager
+Building Software from Source
+9. Linux Shell & Configuration Files
+
+Subtopics:
+
+Linux Configuration Files
+Managing Configuration Files
+Linux Shells
+Bash Shell
+Environment Variables
+Shell Customization
+Ansible Basics
+Linux Environment Management
+10. Linux Security Fundamentals
+
+Subtopics:
+
+Linux Security Threats
+CIA Triad
+Cryptography
+File System Encryption
+Data Integrity
+File Hashing
+Public Key Infrastructure (PKI)
+Certificate Lifecycle
+Certificate Authority (CA)
+SSL/TLS
+HTTPS Configuration
+11. Authentication & Authorization
+
+Subtopics:
+
+Authentication Concepts
+Authorization Concepts
+Pluggable Authentication Modules (PAM)
+User Account Security
+Password Management
+Linux Groups
+User Configuration Files
+sudo Administration
+Remote Management
+SSH Port Forwarding
+SSH Tunneling
+LDAP Server
+LDAP Client Authentication
+12. Linux Firewalls & Monitoring
+
+Subtopics:
+
+Firewall Types
+Linux Firewall Solutions
+IP Forwarding
+iptables
+UFW Firewall
+Proxy Servers
+Squid Proxy
+Intrusion Detection Systems (IDS)
+Snort Configuration
+Honeypots
+Honeynets
+SIEM
+SOAR
+13. Linux Hardening & SELinux
+
+Subtopics:
+
+Linux Hardening
+Secure Boot
+umask Configuration
+Open Port Scanning
+Linux Security Assessment
+Removing Unnecessary Services
+Reverse Shell Awareness
+Advanced File Permissions
+SELinux Concepts
+SELinux Configuration
+SELinux User Management
+Apache with SELinux
+AppArmor
+14. Bash Shell Scripting
+
+Subtopics:
+
+Shell Script Fundamentals
+Variables
+Operators
+Input and Output
+Pipes and Redirection
+Conditional Statements
+Looping Constructs
+Arrays
+Functions
+Parameter Passing
+Backup Scripts
+Scheduling Scripts
+Script Debugging
+Script Best Practices
+15. Containers & Kubernetes
+
+Subtopics:
+
+Container Concepts
+Docker Installation
+Docker CLI
+Docker Images
+Docker Containers
+Docker Networks
+Container Registry
+Dockerfiles
+Kubernetes Fundamentals
+Kubernetes Cluster
+kubectl
+Container Deployment
+16. Linux Troubleshooting & Recovery
+
+Subtopics:
+
+Troubleshooting Methodology
+CPU Troubleshooting
+Memory Troubleshooting
+Performance Monitoring
+Boot Troubleshooting
+Process Performance
+Load Balancing
+Permission Issues
+Root Password Recovery
+File System Quotas
+Backup and Restore
+systemd Services
+systemd Timers
+DNS Troubleshooting using systemd
+Linux Service Management
