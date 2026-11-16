@@ -1,0 +1,413 @@
+# Linux Security with SELinux and AppArmor
+
+## Course Overview
+
+Linux is widely used in enterprise environments to host critical applications and sensitive data. Protecting these systems requires more than traditional Linux file permissions. This course introduces **Security-Enhanced Linux (SELinux)** and **AppArmor**, two powerful Mandatory Access Control (MAC) frameworks that provide an additional layer of security by controlling how users, processes, and applications interact with system resources.
+
+The course begins with the fundamentals of SELinux, including its architecture, operating modes, security contexts, and resource labeling. Learners will then install and configure SELinux on Ubuntu Linux, manage SELinux users and security contexts, secure Apache Web Server resources, and troubleshoot common access control issues. Finally, the course introduces AppArmor, explains its profile-based security model, and compares it with SELinux.
+
+This course is designed for Linux administrators, security engineers, DevOps professionals, and anyone preparing for the **CompTIA Linux+ (XK0-005)** certification.
+
+---
+
+# Learning Objectives
+
+After completing this course, learners will be able to:
+
+* Understand Mandatory Access Control (MAC) concepts.
+* Explain the architecture and working principles of SELinux.
+* Install and configure SELinux on Ubuntu Linux.
+* Work with SELinux operating modes.
+* View and manage SELinux security contexts.
+* Configure SELinux users and user mappings.
+* Modify file and process security contexts.
+* Secure Apache Web Server using SELinux policies.
+* Troubleshoot SELinux permission issues.
+* Understand AppArmor architecture and profile management.
+* Compare SELinux and AppArmor security models.
+* Implement Linux security best practices.
+
+---
+
+# Module 1: Introduction to SELinux
+
+## Overview
+
+Security-Enhanced Linux (SELinux) is a Mandatory Access Control (MAC) framework built into the Linux kernel. Unlike traditional Linux permissions, SELinux applies security policies that determine which users, processes, and applications can access specific system resources.
+
+SELinux is commonly deployed in enterprise environments where servers contain confidential information or run business-critical applications.
+
+### Topics Covered
+
+* Introduction to SELinux
+* Mandatory Access Control (MAC)
+* Difference between DAC and MAC
+* Linux security architecture
+* SELinux components
+* Resource labeling
+* Security policies
+* Security contexts
+* Confined vs Unconfined users
+* Enterprise use cases
+
+---
+
+# Module 2: SELinux Operating Modes
+
+SELinux supports three operating modes that determine how security policies are applied.
+
+### Disabled Mode
+
+* SELinux is turned off.
+* No policies are enforced.
+* Linux behaves normally.
+
+### Permissive Mode
+
+* SELinux monitors system activity.
+* Security violations are logged.
+* Policies are not enforced.
+* Ideal for testing and troubleshooting.
+
+### Enforcing Mode
+
+* Security policies are actively enforced.
+* Unauthorized access is denied.
+* Recommended for production environments after proper configuration.
+
+### Commands Covered
+
+```bash
+sestatus
+getenforce
+setenforce 0
+setenforce 1
+```
+
+---
+
+# Module 3: Installing SELinux on Ubuntu
+
+Unlike Red Hat-based distributions, Ubuntu requires SELinux packages to be installed manually.
+
+### Installation Steps
+
+* Stop AppArmor service.
+* Disable AppArmor.
+* Update package repositories.
+* Install SELinux packages.
+* Activate SELinux.
+* Reboot the system.
+* Verify installation.
+
+### Commands
+
+```bash
+sudo service apparmor stop
+sudo systemctl disable apparmor
+
+sudo apt update
+
+sudo apt install policycoreutils \
+selinux-utils \
+selinux-basics
+
+sudo selinux-activate
+
+sudo init 6
+
+sudo sestatus
+sudo getenforce
+```
+
+### Configuration File
+
+```
+/etc/selinux/config
+```
+
+Important configuration:
+
+```
+SELINUX=permissive
+SELINUX=enforcing
+SELINUX=disabled
+```
+
+---
+
+# Module 4: Understanding SELinux Contexts
+
+A **Security Context** is a label assigned to every object managed by SELinux.
+
+Contexts determine whether a process is allowed to access a resource.
+
+### Context Components
+
+* User
+* Role
+* Type
+* Security Level
+
+### View Context Information
+
+#### User Context
+
+```bash
+id -Z
+```
+
+#### Process Context
+
+```bash
+ps -auxZ
+```
+
+#### File Context
+
+```bash
+ls -Z
+```
+
+### Example Context
+
+```
+system_u:object_r:httpd_sys_content_t:s0
+```
+
+Where
+
+* system_u → User
+* object_r → Role
+* httpd_sys_content_t → Type
+* s0 → Security Level
+
+---
+
+# Module 5: Managing File Contexts
+
+SELinux controls access based on file labels.
+
+Changing a file's ownership or Linux permissions alone does not grant access unless the SELinux context also matches.
+
+### Commands
+
+```bash
+chcon
+
+restorecon
+
+semanage fcontext -l
+
+semanage fcontext -a
+```
+
+### Common Apache Context
+
+```
+httpd_sys_content_t
+```
+
+### Practical Activities
+
+* View file contexts.
+* Change file labels.
+* Restore default labels.
+* Configure persistent contexts.
+* Verify context assignments.
+
+---
+
+# Module 6: Managing SELinux Users
+
+Linux users must be mapped to SELinux users before SELinux policies can control their access.
+
+### SELinux User Types
+
+* unconfined_u
+* staff_u
+* user_u
+* guest_u
+
+### Commands
+
+View SELinux users
+
+```bash
+sudo semanage user -l
+```
+
+View login mappings
+
+```bash
+sudo semanage login -l
+```
+
+Create mapping
+
+```bash
+sudo semanage login -a \
+-s staff_u username
+```
+
+Delete mapping
+
+```bash
+sudo semanage login --delete \
+-s staff_u username
+```
+
+### Practical Exercise
+
+* Map Linux users to SELinux users.
+* Verify mappings.
+* Test SSH login.
+* Remove mappings.
+* Compare confined and unconfined users.
+
+---
+
+# Module 7: Securing Apache with SELinux
+
+SELinux restricts Apache so it can access only resources with the correct security context.
+
+### Apache Process Type
+
+```
+httpd_t
+```
+
+### Apache File Type
+
+```
+httpd_sys_content_t
+```
+
+### Demonstration
+
+* Configure custom web directory.
+* Create website files.
+* Change Apache DocumentRoot.
+* Restart Apache.
+* Observe access failure in Enforcing mode.
+* Update file contexts using chcon.
+* Verify successful website access.
+
+### Commands
+
+```bash
+ps -auxZ
+
+ls -Z
+
+chcon
+
+service apache2 restart
+```
+
+### Key Learning
+
+Apache cannot serve files unless their SELinux context matches the Apache process type.
+
+---
+
+# Module 8: AppArmor Fundamentals
+
+AppArmor is another Linux Mandatory Access Control framework used primarily by Ubuntu and SUSE Linux.
+
+Unlike SELinux, AppArmor secures applications using security profiles.
+
+### AppArmor Modes
+
+### Complain Mode
+
+* Monitors activity
+* Logs violations
+* Does not block access
+
+### Enforce Mode
+
+* Enforces policies
+* Blocks unauthorized access
+* Recommended for production
+
+### Commands
+
+```bash
+apparmor_status
+
+aa-enforce
+
+aa-complain
+
+systemctl disable apparmor
+```
+
+### Practical Activities
+
+* View loaded profiles.
+* Switch profiles to Enforce mode.
+* Switch profiles to Complain mode.
+* Configure application profiles.
+* Protect custom applications.
+
+---
+
+# SELinux vs AppArmor
+
+| Feature             | SELinux              | AppArmor             |
+| ------------------- | -------------------- | -------------------- |
+| Security Model      | Label-Based          | Profile-Based        |
+| Configuration       | Complex              | Simpler              |
+| Flexibility         | Very High            | Moderate             |
+| Default Platforms   | RHEL, CentOS, Fedora | Ubuntu, SUSE         |
+| Policy Management   | Security Contexts    | Application Profiles |
+| Enterprise Adoption | Very High            | High                 |
+
+---
+
+# Hands-on Labs
+
+* Install SELinux on Ubuntu.
+* Configure SELinux operating modes.
+* Activate SELinux.
+* View user, process, and file contexts.
+* Modify file contexts.
+* Configure Apache Web Server with SELinux.
+* Map Linux users to SELinux users.
+* Test SSH access under Enforcing mode.
+* Troubleshoot permission denied errors.
+* Configure AppArmor profiles.
+* Switch between Enforce and Complain modes.
+* Compare SELinux and AppArmor implementations.
+
+---
+
+# Commands Covered
+
+```bash
+sestatus
+getenforce
+setenforce
+selinux-activate
+id -Z
+ps -auxZ
+ls -Z
+chcon
+restorecon
+semanage user
+semanage login
+semanage fcontext
+apparmor_status
+aa-enforce
+aa-complain
+systemctl
+service
+apt
+```
+
+---
+
+# Course Outcome
+
+Upon successful completion of this course, learners will be able to deploy, configure, and administer SELinux on Ubuntu Linux, manage security contexts for users, files, and processes, secure Apache Web Server resources using SELinux policies, troubleshoot access control issues, administer AppArmor profiles, and implement enterprise-grade Linux security using Mandatory Access Control (MAC) frameworks. Participants will also gain practical skills that support Linux system administration roles and preparation for the **CompTIA Linux+ (XK0-005)** certification exam.

@@ -1,0 +1,478 @@
+# Module: Installing, Configuring, and Managing SELinux on Ubuntu Linux
+
+## Module Overview
+
+Security-Enhanced Linux (SELinux) provides an additional layer of security by implementing **Mandatory Access Control (MAC)**. Unlike traditional Linux permissions, SELinux uses security policies and security contexts to control how users, applications, and services access system resources.
+
+In this module, you will learn how to install and enable SELinux on Ubuntu Linux, configure its operating modes, manage security contexts, map Linux users to SELinux users, secure Apache Web Server resources, and understand the fundamentals of AppArmor.
+
+---
+
+# Learning Objectives
+
+After completing this module, you will be able to:
+
+* Install and enable SELinux on Ubuntu Linux.
+* Configure SELinux operating modes.
+* Understand the SELinux configuration file.
+* View and manage security contexts.
+* Configure SELinux users and user mappings.
+* Secure Apache Web Server using SELinux.
+* Troubleshoot common SELinux permission issues.
+* Understand AppArmor architecture and profile management.
+
+---
+
+# 1. Installing SELinux on Ubuntu Linux
+
+Unlike Red Hat Enterprise Linux (RHEL), Ubuntu uses **AppArmor** as its default Mandatory Access Control framework. Therefore, AppArmor should be stopped and disabled before enabling SELinux.
+
+### Installation Steps
+
+1. Stop the AppArmor service.
+2. Disable AppArmor from starting automatically.
+3. Update the package repository.
+4. Install SELinux packages.
+5. Activate SELinux.
+6. Reboot the system.
+7. Verify the installation.
+
+### Required Packages
+
+* policycoreutils
+* selinux-utils
+* selinux-basics
+
+### Commands
+
+```bash
+sudo service apparmor stop
+sudo systemctl disable apparmor
+
+sudo apt update
+
+sudo apt install policycoreutils \
+selinux-utils \
+selinux-basics
+
+sudo selinux-activate
+
+sudo init 6
+```
+
+---
+
+# 2. Verifying SELinux Installation
+
+After installation, verify whether SELinux is enabled and determine its operating mode.
+
+### Check SELinux Status
+
+```bash
+sudo sestatus
+```
+
+Displays:
+
+* SELinux status
+* Loaded policy
+* Current mode
+* Policy type
+* Mount location
+
+### Check Enforcement Mode
+
+```bash
+sudo getenforce
+```
+
+Possible outputs:
+
+* Disabled
+* Permissive
+* Enforcing
+
+---
+
+# 3. SELinux Configuration File
+
+SELinux configuration is stored in:
+
+```text
+/etc/selinux/config
+```
+
+Example configuration:
+
+```text
+SELINUX=disabled
+SELINUX=permissive
+SELINUX=enforcing
+```
+
+### Operating Modes
+
+**Disabled**
+
+* SELinux is completely inactive.
+* No security policies are applied.
+
+**Permissive**
+
+* SELinux monitors activity.
+* Violations are logged.
+* No access restrictions are enforced.
+
+**Enforcing**
+
+* Security policies are fully enforced.
+* Unauthorized access is blocked.
+
+---
+
+# 4. Enabling Enforcement Mode
+
+SELinux enforcement can be changed temporarily or permanently.
+
+### Temporary Change
+
+```bash
+sudo setenforce 1
+```
+
+Enable enforcement.
+
+```bash
+sudo setenforce 0
+```
+
+Switch back to permissive mode.
+
+### Verify Current Mode
+
+```bash
+sudo getenforce
+```
+
+---
+
+# Important Consideration
+
+Do **not** switch directly to Enforcing mode on a production server until:
+
+* SELinux users are properly configured.
+* User mappings are completed.
+* File contexts are correctly assigned.
+* Service contexts have been validated.
+
+Improper configuration can prevent services such as SSH or Apache from functioning correctly.
+
+---
+
+# 5. Understanding SELinux Contexts
+
+Every file, process, user, and directory is assigned a **Security Context**.
+
+A context determines whether a process is allowed to access a particular resource.
+
+Example:
+
+```text
+system_u:object_r:httpd_sys_content_t:s0
+```
+
+Components:
+
+* User
+* Role
+* Type
+* Security Level
+
+---
+
+# 6. Viewing Security Contexts
+
+### User Context
+
+```bash
+id -Z
+```
+
+Displays the SELinux context associated with the logged-in user.
+
+---
+
+### Process Context
+
+```bash
+ps -auxZ
+```
+
+Displays SELinux labels for running processes.
+
+Example:
+
+```text
+httpd_t
+```
+
+represents the Apache process type.
+
+---
+
+### File Context
+
+```bash
+ls -Z
+```
+
+Displays SELinux labels assigned to files and directories.
+
+Example:
+
+```text
+httpd_sys_content_t
+```
+
+---
+
+# 7. Managing File Contexts
+
+If Apache is configured to serve files from a custom directory, the directory must have the appropriate SELinux context.
+
+### Create Website Directory
+
+```bash
+sudo mkdir /mysite
+```
+
+Create a web page.
+
+```bash
+sudo nano index.html
+```
+
+---
+
+### Change File Context
+
+```bash
+sudo chcon -R -t httpd_sys_content_t /mysite
+```
+
+This assigns the Apache web content context recursively.
+
+---
+
+### Verify Context
+
+```bash
+ls -Z /mysite
+```
+
+---
+
+# 8. Managing SELinux Users
+
+SELinux uses its own user database.
+
+Linux users must be mapped to SELinux users before access can be granted in Enforcing mode.
+
+---
+
+## Display SELinux Users
+
+```bash
+sudo semanage user -l
+```
+
+Common SELinux users:
+
+* unconfined_u
+* staff_u
+* user_u
+* guest_u
+
+---
+
+## View Login Mappings
+
+```bash
+sudo semanage login -l
+```
+
+Displays mappings between Linux users and SELinux users.
+
+---
+
+## Add User Mapping
+
+```bash
+sudo semanage login -a \
+-s staff_u cblackwell
+```
+
+---
+
+## Remove User Mapping
+
+```bash
+sudo semanage login --delete \
+-s staff_u cblackwell
+```
+
+---
+
+## Why User Mapping Matters
+
+Without an appropriate SELinux user mapping:
+
+* SSH logins may fail.
+* Access to protected resources will be denied.
+* Applications may not function correctly in Enforcing mode.
+
+---
+
+# 9. Securing Apache Web Server
+
+Apache processes execute with the SELinux type:
+
+```text
+httpd_t
+```
+
+Apache web content should have the context:
+
+```text
+httpd_sys_content_t
+```
+
+If a custom website directory has the default context:
+
+```text
+default_t
+```
+
+Apache cannot access the files when SELinux is enforcing security policies.
+
+Changing the context resolves the issue.
+
+Example:
+
+```bash
+sudo chcon -R \
+system_u:object_r:httpd_sys_content_t:s0 \
+/mysite
+```
+
+After updating the context, Apache can successfully serve content from the custom directory.
+
+---
+
+# 10. Introduction to AppArmor
+
+AppArmor is another Mandatory Access Control framework primarily used by Ubuntu and SUSE Linux.
+
+Unlike SELinux, AppArmor secures applications using **profiles** instead of labels.
+
+---
+
+## Check AppArmor Status
+
+```bash
+sudo apparmor_status
+```
+
+Displays:
+
+* Loaded profiles
+* Processes using profiles
+* Enforce mode profiles
+* Complain mode profiles
+
+---
+
+## AppArmor Modes
+
+### Complain Mode
+
+* Logs violations.
+* Does not block activity.
+* Useful for testing.
+
+### Enforce Mode
+
+* Enforces security policies.
+* Blocks unauthorized actions.
+* Recommended for production systems.
+
+---
+
+## Switch Profiles to Enforce Mode
+
+```bash
+sudo aa-enforce /etc/apparmor.d/*
+```
+
+---
+
+## Switch Profiles to Complain Mode
+
+```bash
+sudo aa-complain /etc/apparmor.d/*
+```
+
+---
+
+## Install AppArmor Utilities
+
+```bash
+sudo apt install apparmor-utils
+```
+
+---
+
+## Disable AppArmor
+
+```bash
+sudo systemctl disable apparmor
+```
+
+The service will remain disabled after the next reboot.
+
+---
+
+# Best Practices
+
+* Test new policies in **Permissive** or **Complain** mode before enforcing them.
+* Always verify file and process contexts after moving application data.
+* Map Linux users to appropriate SELinux users before enabling Enforcing mode.
+* Use `ls -Z`, `ps -auxZ`, and `id -Z` regularly to verify security contexts.
+* Keep SELinux or AppArmor enabled on production systems whenever possible.
+* Avoid disabling security frameworks unless absolutely necessary.
+
+---
+
+# Key Commands Summary
+
+| Purpose               | Command            |
+| --------------------- | ------------------ |
+| Check SELinux status  | `sestatus`         |
+| View enforcement mode | `getenforce`       |
+| Change mode           | `setenforce 0/1`   |
+| Activate SELinux      | `selinux-activate` |
+| View user context     | `id -Z`            |
+| View process context  | `ps -auxZ`         |
+| View file context     | `ls -Z`            |
+| Change file context   | `chcon`            |
+| List SELinux users    | `semanage user -l` |
+| Manage login mapping  | `semanage login`   |
+| Check AppArmor        | `apparmor_status`  |
+| Enable profile        | `aa-enforce`       |
+| Complain mode         | `aa-complain`      |
+
+---
+
+# Module Summary
+
+In this module, you learned how to install and configure SELinux on Ubuntu Linux, activate different operating modes, manage security contexts, map Linux users to SELinux users, and secure Apache Web Server using SELinux policies. You also explored AppArmor, its profile-based security model, and how to manage application profiles. These concepts provide a strong foundation for securing Linux systems and are essential skills for Linux administrators and professionals preparing for the **CompTIA Linux+ (XK0-005)** certification.
